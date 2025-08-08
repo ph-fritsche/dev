@@ -1,0 +1,19 @@
+FROM node:lts-alpine
+
+RUN apk update \
+ && apk add --no-cache openjdk17-jre-headless
+
+RUN yarn global add firebase-tools \
+ && yarn cache clean
+
+RUN firebase setup:emulators:ui \
+ && firebase setup:emulators:database \
+ && firebase -V
+
+USER node
+
+WORKDIR /ws
+
+COPY --link firebase-emulators /ws
+
+ENTRYPOINT ["/bin/sh", "-c", "while :; do firebase emulators:start; done"]
